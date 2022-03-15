@@ -491,38 +491,38 @@ osStatus result = osOK;
   return result;
 }
 
-/***************************  Signal Management ********************************/
-/**
-* @brief  Set the specified Signal Flags of an active thread.
-* @param  thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId.
-* @param  signals       specifies the signal flags of the thread that should be set.
-* @retval previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters.
-* @note   MUST REMAIN UNCHANGED: \b osSignalSet shall be consistent in every CMSIS-RTOS.
-*/
-int32_t osSignalSet (osThreadId thread_id, int32_t signal)
-{
-#if( configUSE_TASK_NOTIFICATIONS == 1 )	
-  BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-  uint32_t ulPreviousNotificationValue = 0;
+/* /\***************************  Signal Management ********************************\/ */
+/* /\** */
+/* * @brief  Set the specified Signal Flags of an active thread. */
+/* * @param  thread_id     thread ID obtained by \ref osThreadCreate or \ref osThreadGetId. */
+/* * @param  signals       specifies the signal flags of the thread that should be set. */
+/* * @retval previous signal flags of the specified thread or 0x80000000 in case of incorrect parameters. */
+/* * @note   MUST REMAIN UNCHANGED: \b osSignalSet shall be consistent in every CMSIS-RTOS. */
+/* *\/ */
+/* int32_t osSignalSet (osThreadId thread_id, int32_t signal) */
+/* { */
+/* #if( configUSE_TASK_NOTIFICATIONS == 1 )	 */
+/*   BaseType_t xHigherPriorityTaskWoken = pdFALSE; */
+/*   uint32_t ulPreviousNotificationValue = 0; */
   
-  if (inHandlerMode())
-  {
-    if(xTaskGenericNotifyFromISR( thread_id , (uint32_t)signal, eSetBits, &ulPreviousNotificationValue, &xHigherPriorityTaskWoken ) != pdPASS )
-      return 0x80000000;
+/*   if (inHandlerMode()) */
+/*   { */
+/*     if(xTaskGenericNotifyFromISR( thread_id , (uint32_t)signal, eSetBits, &ulPreviousNotificationValue, &xHigherPriorityTaskWoken ) != pdPASS ) */
+/*       return 0x80000000; */
     
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-  }  
-  else if(xTaskGenericNotify( thread_id , (uint32_t)signal, eSetBits, &ulPreviousNotificationValue) != pdPASS )
-    return 0x80000000;
+/*     portYIELD_FROM_ISR( xHigherPriorityTaskWoken ); */
+/*   }   */
+/*   else if(xTaskGenericNotify( thread_id , (uint32_t)signal, eSetBits, &ulPreviousNotificationValue) != pdPASS ) */
+/*     return 0x80000000; */
   
-  return ulPreviousNotificationValue;
-#else
-  (void) thread_id;
-  (void) signal;
+/*   return ulPreviousNotificationValue; */
+/* #else */
+/*   (void) thread_id; */
+/*   (void) signal; */
 
-  return 0x80000000; /* Task Notification not supported */ 	
-#endif
-}
+/*   return 0x80000000; /\* Task Notification not supported *\/ 	 */
+/* #endif */
+/* } */
 
 /**
 * @brief  Clear the specified Signal Flags of an active thread.
