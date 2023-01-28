@@ -489,7 +489,9 @@ static USBH_StatusTypeDef USBH_ParseCfgDesc(USBH_HandleTypeDef *phost, uint8_t *
           if (pdesc->bDescriptorType == USB_DESC_TYPE_ENDPOINT)
           {
             /* Check if the endpoint is appartening to an audio streaming interface */
-            if ((pif->bInterfaceClass == 0x01U) && (pif->bInterfaceSubClass == 0x02U))
+	    // https://github.com/STMicroelectronics/stm32_mw_usb_host/issues/11
+            if ((pif->bInterfaceClass == 0x01U) && ((pif->bInterfaceSubClass == 0x02U) || (pif->bInterfaceSubClass == 0x03U)))
+            /* if ((pif->bInterfaceClass == 0x01U) && (pif->bInterfaceSubClass == 0x02U)) */
             {
               /* Check if it is supporting the USB AUDIO 01 class specification */
               if ((pif->bInterfaceProtocol == 0x00U) && (pdesc->bLength != 0x09U))
@@ -546,7 +548,9 @@ static void USBH_ParseInterfaceDesc(USBH_InterfaceDescTypeDef *if_descriptor, ui
   if_descriptor->bDescriptorType    = *(uint8_t *)(buf + 1U);
   if_descriptor->bInterfaceNumber   = *(uint8_t *)(buf + 2U);
   if_descriptor->bAlternateSetting  = *(uint8_t *)(buf + 3U);
-  if_descriptor->bNumEndpoints      = *(uint8_t *)(buf + 4U);
+  /* if_descriptor->bNumEndpoints      = *(uint8_t *)(buf + 4U); */
+  // https://github.com/STMicroelectronics/stm32_mw_usb_host/pull/4
+  if_descriptor->bNumEndpoints      = MIN(*(uint8_t *)(buf + 4), USBH_MAX_NUM_ENDPOINTS);
   if_descriptor->bInterfaceClass    = *(uint8_t *)(buf + 5U);
   if_descriptor->bInterfaceSubClass = *(uint8_t *)(buf + 6U);
   if_descriptor->bInterfaceProtocol = *(uint8_t *)(buf + 7U);
