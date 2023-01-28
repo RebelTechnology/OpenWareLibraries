@@ -302,7 +302,7 @@ USBH_StatusTypeDef USBH_SelectInterface(USBH_HandleTypeDef *phost, uint8_t inter
 {
   USBH_StatusTypeDef status = USBH_OK;
 
-  if (interface < phost->device.CfgDesc.bNumInterfaces)
+  if (interface < USBH_MAX_NUM_INTERFACES) // was: phost->device.CfgDesc.bNumInterfaces) // allow for alternativeSetting i/f
   {
     phost->device.current_interface = interface;
     USBH_UsrLog("Switching to Interface (#%d)", interface);
