@@ -329,7 +329,10 @@ USBH_StatusTypeDef USBH_SelectInterface(USBH_HandleTypeDef *phost, uint8_t inter
   */
 uint8_t USBH_GetActiveClass(USBH_HandleTypeDef *phost)
 {
-  return (phost->device.CfgDesc.Itf_Desc[0].bInterfaceClass);
+  if(phost->pActiveClass == NULL){
+    return phost->device.CfgDesc.Itf_Desc[0].bInterfaceClass;
+  }
+  return phost->pActiveClass->ClassCode;
 }
 
 
@@ -704,15 +707,17 @@ USBH_StatusTypeDef USBH_Process(USBH_HandleTypeDef *phost)
       else
       {
         phost->pActiveClass = NULL;
-
-        for (idx = 0U; idx < phost->ClassNumber; idx++)
+        for (idx = 0U; idx < phost->ClassNumber && phost->pActiveClass == NULL; idx++)
         {
-          if (phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[0].bInterfaceClass)
-          {
-            phost->pActiveClass = phost->pClass[idx];
-            break;
-          }
-        }
+	  for(uint8_t if_ix=0; if_ix< USBH_MAX_NUM_INTERFACES; if_ix++)
+	  {
+	    if (phost->pClass[idx]->ClassCode == phost->device.CfgDesc.Itf_Desc[if_ix].bInterfaceClass)
+	    {
+	      phost->pActiveClass = phost->pClass[idx];
+	      break;
+	    }
+	  }
+	}
 
         if (phost->pActiveClass != NULL)
         {
